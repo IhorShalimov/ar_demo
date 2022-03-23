@@ -10,7 +10,19 @@
   </head>
   <body>
 
-    <model-viewer id="test" scale = "7 7 7" bounds="tight" enable-pan src="BoomBox.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" environment-image="neutral" exposure="1.42">
+    <model-viewer
+            id="test"
+            scale = "7 7 7"
+            bounds="tight"
+            enable-pan
+            src="BoomBox.glb"
+            ar ar-modes="webxr scene-viewer quick-look"
+            camera-controls
+            poster="poster.webp"
+            shadow-intensity="1" 
+            environment-image="neutral"
+            exposure="1.0"
+    >
 
       <div class="progress-bar hide" slot="progress-bar">
           <div class="update-bar"></div>
@@ -52,7 +64,7 @@
       const b = parseInt(color.substr(5,2), 16) / 256
       return [r, g, b, 1]
     }
-    
+
     const modelViewerTexture1 = document.querySelector("model-viewer#test");
 
     modelViewerTexture1.addEventListener("load", () => {
