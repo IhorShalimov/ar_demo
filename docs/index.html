@@ -10,7 +10,7 @@
   </head>
   <body>
 
-    <model-viewer scale = "7 7 7" bounds="tight" enable-pan src="BoomBox.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" environment-image="neutral" exposure="1.42">
+    <model-viewer id="test" scale = "7 7 7" bounds="tight" enable-pan src="BoomBox.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls poster="poster.webp" shadow-intensity="1" environment-image="neutral" exposure="1.42">
 
       <div class="progress-bar hide" slot="progress-bar">
           <div class="update-bar"></div>
@@ -21,9 +21,79 @@
       <div id="ar-prompt">
           <img src="ar_hand_prompt.png">
       </div>
+
+
+      <div class="controls">
+        <p>Textures</p>
+        <select id="textures">
+          <option value="../textures/BoomBox_baseColor.png">Original</option>
+          <option value="../textures/BoomBox_baseColor_dotted.png">Dotted</option>
+          <option value="../textures/BoomBox_baseColor_inverted.png">Inverted</option>
+        </select>
+      </div>
+      <p>Color</p>
+      <input id="baseColor" type="color">
+
+      <p>Roughness</p>
+      <input id="roughness" type="range" min="0" max="1" step="0.01" value="0">
+
     </model-viewer>  
     <script src="script.js"></script>
     <!-- Loads <model-viewer> for browsers: -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   </body>
+
+  <script type="module">
+
+    function hexToRGBA(color) {
+
+      const r = parseInt(color.substr(1,2), 16) / 256
+      const g = parseInt(color.substr(3,2), 16) / 256
+      const b = parseInt(color.substr(5,2), 16) / 256
+      return [r, g, b, 1]
+    }
+    
+    const modelViewerTexture1 = document.querySelector("model-viewer#test");
+
+    modelViewerTexture1.addEventListener("load", () => {
+
+      const material = modelViewerTexture1.model.materials[0];
+
+      const createAndApplyTexture = async (channel, event) => {
+
+        const texture = await modelViewerTexture1.createTexture(event.target.value);
+        if (channel.includes('base') || channel.includes('metallic')) {
+          material.pbrMetallicRoughness[channel].setTexture(texture);
+        } else {
+          material[channel].setTexture(texture);
+        }
+      }
+
+      document.querySelector('#textures').addEventListener('input', (event) => {
+        createAndApplyTexture('baseColorTexture', event);
+      });
+
+      document.querySelector('#baseColor').addEventListener('input', (event) => {
+
+        const colorString = event.target.value;
+
+        if (!colorString) {
+          return;
+        }
+
+        const color = hexToRGBA(colorString);
+
+        material.pbrMetallicRoughness.setBaseColorFactor(color);
+      });
+
+
+      document.querySelector('#roughness').addEventListener('input', (event) => {
+        material.pbrMetallicRoughness.setRoughnessFactor(event.target.value);
+        material.pbrMetallicRoughness.setMetallicFactor(1.0-event.target.value);
+
+      });
+    })
+
+  </script>
+
 </html>
